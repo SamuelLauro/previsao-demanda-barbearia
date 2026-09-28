@@ -16,7 +16,7 @@
         </form>
 
         <!-- Exibe a previsão ou mensagem de erro do servidor -->
-        {% if previsao %}
+        {% if previsao is defined and previsao is not none %}
             <div class="result">
                 <p>Previsão para {{ data }}: <strong>{{ previsao }} clientes</strong></p>
             </div>

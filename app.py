@@ -1,11 +1,14 @@
+import logging
+import os
+
 from flask import Flask, request, render_template
 import pandas as pd
-import numpy as np
 from prophet import Prophet
 
 
 # Inicializar o app Flask
 app = Flask(__name__)
+logging.basicConfig(level=logging.INFO)
 
 # Carregar e preparar os dados
 df = pd.read_csv("frequency_data.csv", parse_dates=['date'])
@@ -52,10 +55,12 @@ def prever():
         # Retornar o valor previsto ao usuário
         return render_template('index.html', previsao=valor_previsto, data=data_escolhida.strftime('%d/%m/%Y'))
 
-    except Exception as e:
-        mensagem = f"Ocorreu um erro: {e}"
+    except Exception:
+        # O detalhe do erro vai para o log do servidor; o usuário vê só uma mensagem genérica
+        app.logger.exception("Erro ao gerar a previsão")
+        mensagem = "Não foi possível gerar a previsão. Confira a data e tente novamente."
         return render_template('index.html', mensagem=mensagem)
 
-# Executar o app
+# Executar o app (modo debug só com FLASK_DEBUG=1, nunca em produção)
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=os.getenv('FLASK_DEBUG') == '1')
